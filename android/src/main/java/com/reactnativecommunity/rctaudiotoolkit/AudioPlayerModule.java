@@ -38,6 +38,11 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
         MediaPlayer.OnBufferingUpdateListener, LifecycleEventListener, AudioManager.OnAudioFocusChangeListener {
     private static final String LOG_TAG = "AudioPlayerModule";
 
+    private static final String OUTPUT_PHONE = "Phone";
+    private static final String OUTPUT_PHONE_SPAKER = "Phone Speaker";
+    private static final String OUTPUT_BLUETOOTH = "Bluetooth";
+    private static final String OUTPUT_HEADPHONES = "Headphones";
+
     Map<Integer, MediaPlayer> playerPool = new HashMap<>();
     Map<Integer, Boolean> playerAutoDestroy = new HashMap<>();
     Map<Integer, Boolean> playerContinueInBackground = new HashMap<>();
@@ -165,7 +170,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
         if (file.exists()) {
             return Uri.fromFile(file);
         }
-        
+
         // Try finding file in Android "raw" resources
         if (path.lastIndexOf('.') != -1) {
             fileNameWithoutExt = path.substring(0, path.lastIndexOf('.'));
@@ -241,7 +246,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
     }
 
     @ReactMethod
-    public void prepare(Integer playerId, String path, ReadableMap options, final Callback callback) {
+    public void prepare(Integer playerId, String path, final ReadableMap options, final Callback callback) {
         if (path == null || path.isEmpty()) {
             callback.invoke(errObj("nopath", "Provided path was empty"));
             return;
@@ -255,6 +260,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
 
         //MediaPlayer player = MediaPlayer.create(this.context, uri, null, attributes);
         MediaPlayer player = new MediaPlayer();
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         /*
         AudioAttributes attributes = new AudioAttributes.Builder()
@@ -272,6 +278,8 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
             callback.invoke(errObj("invalidpath", e.toString()));
             return;
         }
+
+        setAudioOutput(options);
 
         player.setOnErrorListener(this);
         player.setOnInfoListener(this);
@@ -585,5 +593,43 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
     // Utils
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
+    }
+
+    private void setAudioOutput(ReadableMap playbackSettings)
+    {
+        if (playbackSettings != null && playbackSettings.hasKey("output"))
+        {
+            String audioPort = playbackSettings.getString("output");
+            AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+            switch (audioPort){
+            case AudioPlayerModule.OUTPUT_BLUETOOTH:
+              audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+              audioManager.startBluetoothSco();
+              audioManager.setBluetoothScoOn(true);
+              break;
+            case AudioPlayerModule.OUTPUT_PHONE_SPAKER:
+              if (audioManager.isBluetoothScoOn() || audioManager.isBluetoothA2dpOn()) {
+                audioManager.setMode(AudioManager.MODE_IN_CALL);
+              } else {
+                audioManager.setMode(AudioManager.MODE_NORMAL);
+              }
+              audioManager.stopBluetoothSco();
+              audioManager.setBluetoothScoOn(false);
+              audioManager.setSpeakerphoneOn(true);
+              break;
+            case AudioPlayerModule.OUTPUT_PHONE:
+              audioManager.setMode(AudioManager.MODE_IN_CALL);
+              //break;
+            case "None":
+              audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+              audioManager.stopBluetoothSco();
+              audioManager.setSpeakerphoneOn(false);
+              audioManager.setBluetoothScoOn(false);
+              break;
+            default:
+              //audioManager.setSpeakerphoneOn(true);
+              break;
+            }
+        }
     }
 }
