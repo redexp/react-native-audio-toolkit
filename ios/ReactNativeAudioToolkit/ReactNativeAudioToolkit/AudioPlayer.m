@@ -14,10 +14,15 @@
 #import "RCTUtils.h"
 #import "ReactPlayer.h"
 #import "ReactPlayerItem.h"
+#import "React/RCTConvert.h"
 #import <AVFoundation/AVPlayer.h>
 #import <AVFoundation/AVPlayerItem.h>
 #import <AVFoundation/AVAsset.h>
 
+NSString *const OutputPhone = @"Phone";
+NSString *const OutputPhoneSpeaker = @"Phone Speaker";
+NSString *const OutputBluetooth = @"Bluetooth";
+NSString *const OutputHeadphones = @"Headphones";
 
 @interface AudioPlayer ()
 
@@ -138,6 +143,9 @@ RCT_EXPORT_METHOD(prepare:(nonnull NSNumber*)playerId
     
     // If successful, check options and add to player pool
     if (player) {
+        NSString *output = [RCTConvert NSString:options[@"output"]];
+        [self setAudioOutput:output];
+
         NSNumber *autoDestroy = [options objectForKey:@"autoDestroy"];
         if (autoDestroy) {
             player.autoDestroy = [autoDestroy boolValue];
@@ -412,6 +420,22 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)playerId withCallback:(RCTRe
         [[self playerPool] removeObjectForKey:playerId];
 
     }
+}
+
+- (void)setAudioOutput:(NSString *)output {
+  if([output isEqualToString:OutputPhoneSpeaker]){
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setActive:YES error:nil];
+    [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+  } else if ([output isEqualToString:OutputPhone]){
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setActive:YES error:nil];
+    [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+  } else {
+    [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+  }
 }
 
 @end
