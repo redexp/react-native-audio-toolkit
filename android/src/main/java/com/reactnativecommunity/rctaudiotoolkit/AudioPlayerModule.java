@@ -279,7 +279,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
             return;
         }
 
-        setAudioOutput(options);
+        setAudioOutput(options.getString("output"));
 
         player.setOnErrorListener(this);
         player.setOnInfoListener(this);
@@ -595,41 +595,43 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
         return (a == b) || (a != null && a.equals(b));
     }
 
-    private void setAudioOutput(ReadableMap playbackSettings)
+    @ReactMethod
+    private void setAudioOutput(String output)
     {
-        if (playbackSettings != null && playbackSettings.hasKey("output"))
-        {
-            String audioPort = playbackSettings.getString("output");
-            AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
-            switch (audioPort){
-            case AudioPlayerModule.OUTPUT_BLUETOOTH:
-              audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-              audioManager.startBluetoothSco();
-              audioManager.setBluetoothScoOn(true);
-              break;
-            case AudioPlayerModule.OUTPUT_PHONE_SPAKER:
-              if (audioManager.isBluetoothScoOn() || audioManager.isBluetoothA2dpOn()) {
-                audioManager.setMode(AudioManager.MODE_IN_CALL);
-              } else {
-                audioManager.setMode(AudioManager.MODE_NORMAL);
-              }
-              audioManager.stopBluetoothSco();
-              audioManager.setBluetoothScoOn(false);
-              audioManager.setSpeakerphoneOn(true);
-              break;
-            case AudioPlayerModule.OUTPUT_PHONE:
-              audioManager.setMode(AudioManager.MODE_IN_CALL);
-              //break;
-            case "None":
-              audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-              audioManager.stopBluetoothSco();
-              audioManager.setSpeakerphoneOn(false);
-              audioManager.setBluetoothScoOn(false);
-              break;
-            default:
-              //audioManager.setSpeakerphoneOn(true);
-              break;
-            }
+        if (output == null) {
+            return;
+        }
+
+        AudioManager audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+
+        switch (output){
+        case AudioPlayerModule.OUTPUT_BLUETOOTH:
+          audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+          audioManager.startBluetoothSco();
+          audioManager.setBluetoothScoOn(true);
+          break;
+        case AudioPlayerModule.OUTPUT_PHONE_SPAKER:
+          if (audioManager.isBluetoothScoOn() || audioManager.isBluetoothA2dpOn()) {
+            audioManager.setMode(AudioManager.MODE_IN_CALL);
+          } else {
+            audioManager.setMode(AudioManager.MODE_NORMAL);
+          }
+          audioManager.stopBluetoothSco();
+          audioManager.setBluetoothScoOn(false);
+          audioManager.setSpeakerphoneOn(true);
+          break;
+        case AudioPlayerModule.OUTPUT_PHONE:
+          audioManager.setMode(AudioManager.MODE_IN_CALL);
+          //break;
+        case "None":
+          audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+          audioManager.stopBluetoothSco();
+          audioManager.setSpeakerphoneOn(false);
+          audioManager.setBluetoothScoOn(false);
+          break;
+        default:
+          //audioManager.setSpeakerphoneOn(true);
+          break;
         }
     }
 }
