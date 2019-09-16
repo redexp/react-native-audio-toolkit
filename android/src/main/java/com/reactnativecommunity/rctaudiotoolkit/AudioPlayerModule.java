@@ -39,7 +39,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
     private static final String LOG_TAG = "AudioPlayerModule";
 
     private static final String OUTPUT_PHONE = "Phone";
-    private static final String OUTPUT_PHONE_SPAKER = "Phone Speaker";
+    private static final String OUTPUT_PHONE_SPEAKER = "Phone Speaker";
     private static final String OUTPUT_BLUETOOTH = "Bluetooth";
     private static final String OUTPUT_HEADPHONES = "Headphones";
 
@@ -610,7 +610,7 @@ public class AudioPlayerModule extends ReactContextBaseJavaModule implements Med
           audioManager.startBluetoothSco();
           audioManager.setBluetoothScoOn(true);
           break;
-        case AudioPlayerModule.OUTPUT_PHONE_SPAKER:
+        case AudioPlayerModule.OUTPUT_PHONE_SPEAKER:
           if (audioManager.isBluetoothScoOn() || audioManager.isBluetoothA2dpOn()) {
             audioManager.setMode(AudioManager.MODE_IN_CALL);
           } else {

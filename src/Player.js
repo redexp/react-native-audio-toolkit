@@ -55,6 +55,11 @@ class Player extends EventEmitter {
     RCTAudioPlayer.setAudioOutput(output);
   }
 
+  static OUTPUT_PHONE = "Phone";
+  static OUTPUT_PHONE_SPEAKER = "Phone Speaker";
+  static OUTPUT_BLUETOOTH = "Bluetooth";
+  static OUTPUT_HEADPHONES = "Headphones";
+
   _reset() {
     this._state = MediaStates.IDLE;
     this._volume = 1.0;
