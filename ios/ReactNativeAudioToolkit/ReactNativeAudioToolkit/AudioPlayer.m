@@ -144,7 +144,7 @@ RCT_EXPORT_METHOD(prepare:(nonnull NSNumber*)playerId
     // If successful, check options and add to player pool
     if (player) {
         NSString *output = [RCTConvert NSString:options[@"output"]];
-        [self setAudioOutput:output];
+        [self setAudioSessionCategory:output];
 
         NSNumber *autoDestroy = [options objectForKey:@"autoDestroy"];
         if (autoDestroy) {
@@ -384,6 +384,10 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)playerId withCallback:(RCTRe
                                 @"position": @(CMTimeGetSeconds(player.currentTime) * 1000)}]);
 }
 
+RCT_EXPORT_METHOD(setAudioOutput:(nonnull NSString*)output) {
+    [self setAudioSessionCategory:output];
+}
+
 -(void)itemDidFinishPlaying:(NSNotification *) notification {
     NSNumber *playerId = ((ReactPlayerItem *)notification.object).reactPlayerId;
     ReactPlayer *player = (ReactPlayer *)[self playerForKey:playerId];
@@ -422,7 +426,7 @@ RCT_EXPORT_METHOD(getCurrentTime:(nonnull NSNumber*)playerId withCallback:(RCTRe
     }
 }
 
-- (void)setAudioOutput:(NSString *)output {
+- (void)setAudioSessionCategory:(NSString *)output {
   if([output isEqualToString:OutputPhoneSpeaker]){
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
