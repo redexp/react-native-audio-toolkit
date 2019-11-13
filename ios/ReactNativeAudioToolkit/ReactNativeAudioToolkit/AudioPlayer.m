@@ -430,11 +430,11 @@ RCT_EXPORT_METHOD(setAudioOutput:(nonnull NSString*)output) {
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
 
   if([output isEqualToString:OutputPhoneSpeaker]){
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
     [audioSession setActive:YES error:nil];
     [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
   } else if ([output isEqualToString:OutputPhone]){
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
     [audioSession setActive:YES error:nil];
     [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
   } else {
