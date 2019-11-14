@@ -434,14 +434,13 @@ RCT_EXPORT_METHOD(setAudioOutput:(nonnull NSString*)output) {
     [audioSession setActive:YES error:nil];
     [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
   } else if ([output isEqualToString:OutputPhone]){
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
 
     NSArray* routes = [audioSession availableInputs];
     for (AVAudioSessionPortDescription* route in routes)
     {
         if (route.portType == AVAudioSessionPortBluetoothHFP)
         {
-            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
             [audioSession setPreferredInput:route error:nil];
             break;
         }
