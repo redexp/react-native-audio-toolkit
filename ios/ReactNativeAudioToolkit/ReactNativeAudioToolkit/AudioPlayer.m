@@ -441,6 +441,7 @@ RCT_EXPORT_METHOD(setAudioOutput:(nonnull NSString*)output) {
     {
         if (route.portType == AVAudioSessionPortBluetoothHFP)
         {
+            [audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionAllowBluetooth error:nil];
             [audioSession setPreferredInput:route error:nil];
             break;
         }
